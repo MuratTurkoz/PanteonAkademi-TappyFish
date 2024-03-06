@@ -1,45 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class LeftMovement : MonoBehaviour
 {
-    public float speed = 5f;
-    [SerializeField] float distance = -10f;
-    [SerializeField] float position = 0f;
-
-    // Start is called before the first frame update
+    public float speed;
+    BoxCollider2D box;
+    float groundWidht;
+    float obstacleWidth;
     void Start()
     {
-        
+        if (gameObject.CompareTag("Ground"))
+        {
+            box = GetComponent<BoxCollider2D>();
+            groundWidht = box.size.x;
+        }
+        else if (gameObject.CompareTag("Obstacle"))
+        {
+            obstacleWidth = GameObject.FindGameObjectWithTag("Column").GetComponent<BoxCollider2D>().size.x;
+        }
     }
 
-    // Update is called once per frame
     void Update()
     {
-        LoopMove();
-    }
+        transform.position = new Vector2(transform.position.x - speed * Time.deltaTime, transform.position.y);
 
-    private void LoopMove()
-    {
-        transform.position = new Vector2(transform.position.x - speed * Time.deltaTime,transform.position.y);
-        if (transform.position.x < distance)
+        if (gameObject.CompareTag("Ground"))
         {
-            if (transform.name=="Ground")
+            if (transform.position.x <= -groundWidht)
             {
-
-            transform.position = new Vector2(-0.27f, -8);
+                transform.position = new Vector2(transform.position.x + 2 * groundWidht, transform.position.y);
             }
-            else if (transform.name == "Background")
-            {
-                transform.position = new Vector2(position, 0);
-
-            }
-
         }
-
-       
-        //transform.Translate(Vector3.left*speed*Time.deltaTime);
+        else if (gameObject.CompareTag("Obstacle"))
+        {
+            if (transform.position.x < GameManager.bottomLeft.x - obstacleWidth)
+            {
+                Destroy(gameObject);
+            }
+        }   
     }
 }

@@ -4,9 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - SpawnEnemies
-  - Obstacle
   - Ground
+  - Obstacle
+  - Column
   layers:
   - Default
   - TransparentFX
@@ -44,18 +44,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Background
-    uniqueID: 2806504467
+  - name: SortingLayer_1
+    uniqueID: 3498456417
     locked: 0
-  - name: ground
-    uniqueID: 1081319493
+  - name: SortingLayer_2
+    uniqueID: 2593547975
     locked: 0
-  - name: Player
-    uniqueID: 1580835233
+  - name: SortingLayer_3
+    uniqueID: 1761947161
     locked: 0
-  - name: Obstacle
-    uniqueID: 1479502221
-    locked: 0
-  - name: UI
-    uniqueID: 282744793
+  - name: Canvas
+    uniqueID: 2975816495
     locked: 0

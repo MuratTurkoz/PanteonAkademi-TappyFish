@@ -4,43 +4,45 @@ using UnityEngine;
 
 public class Fish : MonoBehaviour
 {
-    [Header("Movement")]
-    [SerializeField] float speed = 9f;
-    [SerializeField] int minAngle = 6;
-    [SerializeField] int maxAngle = 20;
-    [Header("AudioClip")]
-    [SerializeField] AudioClip jumpVFX;
-    [SerializeField] AudioClip pointVFX;
-    [SerializeField] AudioClip crushVFX;
-    AudioSource audioSource;
-    Rigidbody2D _rb;
-    bool isCrush = false;
-    int angle = 0;
-   
+    private Rigidbody2D _rb;
+    public float speed;
+    int angle;
+    int maxAngle = 20;
+    int minAngle = -60;
+    public Score score;
+    public GameManager gameManager;
+    public Sprite fishDied;
+    SpriteRenderer sp;
+    Animator anim;
+
+    bool touchedGround;
     void Start()
     {
-
         _rb = GetComponent<Rigidbody2D>();
-        _rb.velocity = new Vector2(_rb.velocity.x, 9f);
-        audioSource = GetComponent<AudioSource>();
+        sp = GetComponent<SpriteRenderer>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
     {
-
-        if (isCrush == false && GameManager.gameOver == false)
-        {
-            FishSwim();
-        }
-
+        FishSwim();
     }
-    void FixedUpdate()
+
+    private void FixedUpdate()
     {
         FishRotation();
-
     }
 
-    private void FishRotation()
+    void FishSwim()
+    {
+        if (Input.GetMouseButtonDown(0) && GameManager.gameOver == false)
+        {
+            _rb.velocity = Vector2.zero;
+            _rb.velocity = new Vector2(_rb.velocity.x, speed);
+        }
+    }
+
+    void FishRotation()
     {
         if (_rb.velocity.y > 0)
         {
@@ -49,64 +51,52 @@ public class Fish : MonoBehaviour
                 angle = angle + 4;
             }
         }
-        else if (_rb.velocity.y < -1.2)//Gecikme Yapmak için
+        else if (_rb.velocity.y < -2.5f)
         {
             if (angle > minAngle)
             {
                 angle = angle - 2;
             }
-
         }
-        transform.rotation = Quaternion.Euler(0, 0, angle);
+
+        if (touchedGround == false)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+        }
     }
 
-    private void FishSwim()
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(Input.touchCount);
-        if (Input.touchCount != 0)
+        if (collision.CompareTag("Obstacle"))
         {
-            _rb.velocity = Vector2.zero;
-            _rb.velocity = new Vector2(_rb.velocity.x, speed);
-            if (!audioSource.isPlaying)
-            {
-                audioSource.PlayOneShot(jumpVFX);
-            }
+            score.Scored();
         }
-
+        else if (collision.CompareTag("Column"))
+        {
+            // game over
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-
-        if (collision.gameObject.CompareTag("Obstacle"))
-        {
-            FishDeath();
-        }
-        else if (collision.gameObject.tag == "Ground")
+        if (collision.gameObject.CompareTag("Ground"))
         {
             if (GameManager.gameOver == false)
             {
-                FishDeath();
-            }          
+                // game over
+                gameManager.GameOver();
+                GameOver();
+            }
+            
         }
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+
+    void GameOver()
     {
-        GameObject.Find("GameManager").GetComponent<GameManager>().AddScore();
-        if (!audioSource.isPlaying)
-        {
-            audioSource.PlayOneShot(pointVFX);
-        }
-    }
-    void FishDeath()
-    {
-        GameManager.gameOver = true;
-        audioSource.PlayOneShot(crushVFX);
+        touchedGround = true;
+        sp.sprite = fishDied;
+        anim.enabled = false;
         transform.rotation = Quaternion.Euler(0, 0, -90);
-        GameObject.Find("Ground").GetComponent<LeftMovement>().enabled = false;       
-        enabled = false;
-        gameObject.GetComponent<Animator>().enabled = false;
-        isCrush = true;
-        GameObject.Find("GameManager").GetComponent<GameManager>().CrushObstacle();
     }
+
 }
